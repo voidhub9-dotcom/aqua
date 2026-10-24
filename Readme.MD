@@ -263,12 +263,6 @@ The distribution has exactly four root files:
 
 Repository: [voidhub9-dotcom/Aqua](https://github.com/voidhub9-dotcom/Aqua)
 
-## Credits
-
-Aqua Hub preserves the native UI foundation and extends it with Aqua branding and appearance tools. Upstream author credit is retained for [PookiePepelsss](https://github.com/PookiePepelsss) and [joustingmatch](https://github.com/joustingmatch).
-
-The README logo is provided through the release asset linked at the top of this page. The UI may fetch icons, fonts, images, and other external resources when those optional features are used; they are not additional repository files.
-
 ## License
 
 The four distributed files are provided under the MIT License.
