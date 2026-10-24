@@ -6,6 +6,8 @@ Load it once, build the window, add tabs, put groupboxes on tabs (or sub tabs), 
 
 ## Files
 
+Repository: [voidhub9-dotcom/Aqua](https://github.com/voidhub9-dotcom/Aqua)
+
 - [Readme.MD](Readme.MD): the branded setup guide, common examples, capability notes and license.
 - [Example.lua](Example.lua): the complete library embedded with a standalone Aqua Hub showcase of selected native controls and the appearance editor. It does not demonstrate every element; use the API tables below and the readable source for less common options.
 - [Source.lua](Source.lua): the complete readable library and appearance extension; returns `Library`. This is what scripts `loadstring`. It is not the original upstream minified build.
@@ -15,7 +17,7 @@ Load it once, build the window, add tabs, put groupboxes on tabs (or sub tabs), 
 This is NOT a Roblox Studio project. Do not instruct users to create ModuleScripts or LocalScripts, install into ReplicatedStorage, or use `require(ReplicatedStorage.AquaHub)`. Use the original executor loading pattern below. HTTP, file, clipboard, and custom-asset features depend on executor capabilities.
 
 ```lua
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/voidhub9-dotcom/Kawi-Template/main/Source.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/voidhub9-dotcom/Aqua/main/Source.lua"))()
 ```
 
 Optional, before native `CreateWindow`: `Library:LoadFont({ Name = "ValleySans" })`, `Library:SetDefaultTheme("Nebula")`, `Library:PreloadIcons()`. With `CreateAquaHubWindow`, pass `Theme = "Nebula"` in the options to select that starting preset instead of the wrapper default.
@@ -134,7 +136,7 @@ Minimizing folds the window into a Dynamic Island at the top of the screen. Play
 ## Optional
 
 - Optional Home supports a profile card, live stats, game/executor cards, feature lists and changelog pages; see the readable source for its options.
-- [README: Configs](Readme.MD#configs): file format, share codes, autoload per account.
+- [README: Flags and configuration](Readme.MD#flags-and-configuration): persistence, flag scope, executor file APIs, and configuration caveats.
 - Icons use Lucide names or supported custom assets. Optional custom fonts need file and custom-asset APIs; see `Library:LoadFont` in the source.
 
 ## Aqua Hub factories and defaults

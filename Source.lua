@@ -1,8 +1,3 @@
--- Aqua Hub by von63rd. Single-file Roblox Luau UI library.
--- Native UI base contributors: PookiePepelsss and joustingmatch; see Readme.MD for credits and MIT license.
-
--- The library lives in its own function so its locals don't count against
--- the script below it: Luau allows 200 locals per function.
 local Library = (function()
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
