@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/voidhub9-dotcom/Kawi-Template/releases/download/readme-assets-2026-10/aqua-hub-logo.png" width="112" alt="Aqua Hub logo" />
+<img src="https://github.com/voidhub9-dotcom/Aqua/releases/download/readme-assets-2026-10/aqua-hub-logo.png" width="112" alt="Aqua Hub logo" />
 
 # Aqua Hub
 
@@ -27,7 +27,7 @@ Run this in a compatible client executor for an experience you own or are author
 
 ```lua
 local Library = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/voidhub9-dotcom/Kawi-Template/main/Source.lua"
+    "https://raw.githubusercontent.com/voidhub9-dotcom/Aqua/main/Source.lua"
 ))()
 
 local Window = Library:CreateAquaHubWindow({
@@ -74,7 +74,7 @@ The enhanced factory defaults to the title **Aqua Hub**, subtitle **by von63rd**
 
 ```lua
 loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/voidhub9-dotcom/Kawi-Template/main/Example.lua"
+    "https://raw.githubusercontent.com/voidhub9-dotcom/Aqua/main/Example.lua"
 ))()
 ```
 
@@ -261,7 +261,7 @@ The distribution has exactly four root files:
 | [`Readme.MD`](Readme.MD) | Installation, usage, API overview, and license |
 | [`llms.txt`](llms.txt) | Compact API guidance for coding assistants |
 
-Repository: [voidhub9-dotcom/Kawi-Template](https://github.com/voidhub9-dotcom/Kawi-Template)
+Repository: [voidhub9-dotcom/Aqua](https://github.com/voidhub9-dotcom/Aqua)
 
 ## Credits
 
