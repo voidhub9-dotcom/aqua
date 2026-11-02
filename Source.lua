@@ -17486,17 +17486,11 @@ function Window:_buildOpenEffects(enabled)
             NumberSequenceKeypoint.new(1, 1),
         }), Parent = effects.Rail,
     })
-    -- One reusable ripple, clipped to the window and with no input handlers.
+    -- One reusable press pulse, clipped to the window and with no input
+    -- handlers. Just a small soft accent flash at the press point.
     effects.Feedback = decoration("OpenTouchFeedback", root, 6)
     effects.Feedback.ClipsDescendants = true
     corner(effects.Feedback, UDim.new(0, 10))
-    effects.Ring = decoration("TouchRing", effects.Feedback, 6)
-    effects.Ring.AnchorPoint = Vector2.new(0.5, 0.5)
-    corner(effects.Ring, UDim.new(1, 0))
-    effects.RingStroke = stroke(effects.Ring, Theme.Accent, 1, 1.5)
-    effects.RingStroke.Transparency = 1
-    -- A soft accent fill under the ring: it flashes on press and clears
-    -- before the ring finishes expanding.
     effects.Ripple = create("ImageLabel", {
         Name = "TouchFill",
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -17526,7 +17520,6 @@ function Window:_buildOpenEffects(enabled)
         lastPress = now
         local fit = math.max(self.Scale.Scale, 0.01)
         local offset = (point - root.AbsolutePosition) / fit
-        effects.Ring.Position = UDim2.fromOffset(offset.X, offset.Y)
         effects.Ripple.Position = UDim2.fromOffset(offset.X, offset.Y)
         self._openEffectPulse = 0
         self._openEffectKick = math.max(self._openEffectKick, 0.35)
@@ -17542,7 +17535,7 @@ function Window:_buildOpenEffects(enabled)
             end
             effects.TabStroke.Transparency = shown and 0.78 or 1
             if not shown then
-                effects.Ring.Visible = false
+                effects.Ripple.Visible = false
                 self._openEffectPulse = 1
             end
         end
@@ -17567,20 +17560,16 @@ function Window:_buildOpenEffects(enabled)
         effects.RailGradient.Offset = Vector2.new(math.sin(clock * 0.42) * 0.7, 0)
         effects.Wash.BackgroundTransparency = 0.963 - math.sin(clock * 0.55) * 0.006
         effects.TabStroke.Transparency = 0.8 - kick * 0.3
-        local pulse = math.min(1, self._openEffectPulse + step / 0.4)
+        local pulse = math.min(1, self._openEffectPulse + step / 0.25)
         self._openEffectPulse = pulse
         local active = pulse < 1
-        effects.Ring.Visible = active
         effects.Ripple.Visible = active
         if active then
-            -- The ring eases out from the press point and thins as it fades;
-            -- the fill flashes brighter first and clears early.
-            local eased = 1 - (1 - pulse) ^ 2
-            local size = 12 + 76 * eased
-            effects.Ring.Size = UDim2.fromOffset(size, size)
-            effects.RingStroke.Transparency = 0.3 + pulse * 0.7
-            effects.Ripple.Size = UDim2.fromOffset(size * 0.9, size * 0.9)
-            effects.Ripple.ImageTransparency = 0.72 + math.min(pulse * 1.6, 1) * 0.28
+            -- Out fast, gone fast: a quick ease-out pulse, then clear.
+            local eased = 1 - (1 - pulse) ^ 3
+            local size = 10 + 38 * eased
+            effects.Ripple.Size = UDim2.fromOffset(size, size)
+            effects.Ripple.ImageTransparency = 0.55 + pulse * 0.45
         end
     end)
 end
