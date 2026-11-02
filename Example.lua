@@ -17253,8 +17253,10 @@ local WEATHER = {
     -- (about 1/60 of its width, 57% of its height), so it is stretched much
     -- wider than the drop it draws. See RAIN_STREAK.
     Rain = { Image = "rbxassetid://241868005", Count = 90, Stretch = true },
-    Snow = { Image = "rbxassetid://99851851", Count = 60 },
-    Ember = { Image = "rbxassetid://242205518", Count = 55 },
+    -- Snow and embers draw with the soft radial glow sprite instead of the
+    -- 2011-era decals, which read as blurry squares at particle sizes.
+    Snow = { Image = Assets.Glow, Count = 60 },
+    Ember = { Image = Assets.Glow, Count = 55 },
     -- Drawn with plain frames and text, no images: petals are tinted pills
     -- that flip as they fall, matrix columns are text strips.
     Sakura = { Petal = true, Count = 46, Glow = Color3.fromRGB(255, 150, 190), GlowAmount = 0.1 },
@@ -17318,19 +17320,24 @@ local function seedParticle(kind, particle, width, height, anywhere)
         particle.VX = particle.VY * 0.12
         particle.Sway, particle.Spin = 0, 0
         particle.Rotation = -math.deg(math.atan2(particle.VX, particle.VY))
-        particle.Alpha = roll(0, 0.35)
+        particle.Alpha = roll(0.08, 0.35)
         particle.X = roll(-0.15 * width, width)
         particle.Y = anywhere and roll(-40, height) or roll(-120, -particle.Size.Y)
     elseif kind == "Snow" then
-        local s = roll(6, 17)
+        -- Depth tiers: far flakes are small, slow, faint haze; near ones are
+        -- larger, brighter and sway more. Drawn with the soft glow sprite so
+        -- each flake reads as a drifting point of light, not a hard square.
+        local depth = roll(0.3, 1)
+        local s = 6 + 16 * depth
         particle.Size = Vector2.new(s, s)
-        particle.VY = roll(30, 55) * (0.6 + s / 17)
-        particle.VX = roll(-8, 14)
-        particle.Sway = roll(12, 38)
-        particle.Frequency = roll(0.5, 1.3)
-        particle.Spin = roll(-60, 60)
+        particle.VY = 16 + 42 * depth
+        particle.VX = roll(-8, 14) * (0.5 + depth * 0.5)
+        particle.Sway = roll(10, 30) * (1.35 - depth * 0.55)
+        particle.Frequency = roll(0.4, 1.1)
+        particle.Spin = roll(-40, 40) * depth
         particle.Rotation = roll(0, 360)
-        particle.Alpha = roll(0.05, 0.45)
+        particle.Alpha = 0.05 + depth * roll(0.08, 0.2)
+        particle.Color = Color3.fromRGB(232, 244, 255)
         particle.X = roll(0, width)
         particle.Y = anywhere and roll(-20, height) or roll(-60, -s)
     elseif kind == "Sakura" then
@@ -17386,19 +17393,21 @@ local function seedParticle(kind, particle, width, height, anywhere)
         particle.Y = anywhere and roll(-particle.Size.Y / 2, height) or -particle.Size.Y / 2 - roll(0, 240)
         particle.Chars = {}
         for index = 1, length do
-            particle.Chars[index] = list[math.random(#list)]
+            particle.Chars[index] = list[weatherRandom:NextInteger(1, #list)]
         end
         particle.Shuffle = roll(0.05, 0.2)
     else
-        local s = roll(4, 12)
+        -- Embers as soft rising glows: depth sets size, rise speed and heat.
+        local depth = roll(0.35, 1)
+        local s = 5 + 11 * depth
         particle.Size = Vector2.new(s, s)
-        particle.VY = -roll(60, 170)
+        particle.VY = -roll(50, 150) * (0.5 + depth * 0.5)
         particle.VX = roll(-12, 12)
         particle.Sway = roll(8, 28)
         particle.Frequency = roll(1, 2.4)
         particle.Spin = roll(-140, 140)
         particle.Rotation = roll(0, 360)
-        particle.Alpha = roll(0, 0.3)
+        particle.Alpha = 0.04 + depth * roll(0.1, 0.28)
         particle.Color = Color3.fromRGB(255, 70, 20):Lerp(Color3.fromRGB(255, 190, 70), roll(0, 1))
         particle.X = roll(0, width)
         particle.Y = anywhere and roll(height * 0.2, height + 10) or height + roll(10, 80)
@@ -17495,7 +17504,7 @@ function Window:_buildOpenEffects(enabled)
     effects.TabStroke.Transparency = 1
     self._openEffectClock, self._openEffectKick = 0, 0
     self._openEffectPulse = 1
-    local accumulator, wasShown, lastPress = 0, false, -1
+    local accumulator, wasShown, wasPillShown, lastPress = 0, false, false, -1
     self:_listen("Began", function(input)
         if not self._openEffectsEnabled or not self._introDone or not self.Open
             or self.Minimized or not root.Visible or not isPress(input) then
@@ -17512,18 +17521,26 @@ function Window:_buildOpenEffects(enabled)
         self._openEffectKick = math.max(self._openEffectKick, 0.35)
     end)
     table.insert(self._frameSteps, function(deltaTime)
-        local shown = self._openEffectsEnabled and self._introDone and self.Open
+        local windowShown = self._introDone and self.Open
             and not self.Minimized and root.Visible and self.Gui.Enabled and not self._destroyed
+        local shown = windowShown and self._openEffectsEnabled
         if shown ~= wasShown then
             wasShown = shown
             for _, name in ipairs({ "Glow", "Rim", "Wash", "Rail", "Feedback" }) do
                 effects[name].Visible = shown
             end
-            self._indicatorPill.Visible = shown
             effects.TabStroke.Transparency = shown and 0.78 or 1
             if not shown then
                 effects.Ring.Visible = false
                 self._openEffectPulse = 1
+            end
+        end
+        if windowShown ~= wasPillShown then
+            wasPillShown = windowShown
+            -- The pill marks the active tab: it is chrome, not decoration, so
+            -- it stays up even when the open effects are turned off.
+            if self._indicatorPill then
+                self._indicatorPill.Visible = windowShown
             end
         end
         if not shown then return end
@@ -17789,6 +17806,9 @@ function Window:_stepBackdrop(deltaTime)
             -- Flicker, and burn out on the way up.
             alpha *= math.clamp(particle.Y / (height * 0.85), 0, 1) ^ 0.6
             alpha *= 0.75 + math.sin(particle.Time * 9 + particle.Phase) * 0.25
+        elseif kind == "Snow" then
+            -- A faint shimmer so flakes read as drifting ice, not dead dots.
+            alpha *= 0.72 + math.sin(particle.Time * 1.7 + particle.Phase) * 0.28
         elseif kind == "Sakura" then
             -- Flip: the petal narrows and widens as it turns over.
             local turn = math.abs(math.cos(particle.Time * particle.Flutter + particle.Phase))
@@ -17804,8 +17824,8 @@ function Window:_stepBackdrop(deltaTime)
                 particle.Shuffle = roll(0.05, 0.2)
                 local list = WEATHER.Matrix.List
                 local chars = particle.Chars
-                chars[math.random(#chars)] = list[math.random(#list)]
-                chars[#chars] = list[math.random(#list)]
+                chars[weatherRandom:NextInteger(1, #chars)] = list[weatherRandom:NextInteger(1, #list)]
+                chars[#chars] = list[weatherRandom:NextInteger(1, #list)]
                 label.Text = table.concat(chars, "\n")
             end
         end
